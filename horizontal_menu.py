@@ -1,9 +1,7 @@
 # this will be my implementation  of the horizontal menu 
 # original implementation: https://urwid.org/tutorial/index.htmlr
-from re import sub
-from this import d
-from turtle import width
 import urwid 
+import urwid.web_display
 import logging 
 
 logging.basicConfig(filename="log.log")
@@ -84,4 +82,4 @@ menus = Menu("Main Menu", [
 
 main_view = MainView(1)
 main_view.open_menu(menus)
-urwid.MainLoop(main_view, palette).run()
+loop = urwid.MainLoop(main_view, palette).run()

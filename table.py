@@ -1,57 +1,28 @@
 import urwid 
-import logging 
-logging.basicConfig(filename="log.log")
 
-palette = [
-    ('bg', 'black', 'black'), 
-    ('text', 'white', 'dark red'),
+class Table(urwid.WidgetWrap):
+    def __init__(self, rows, cols):
+        count = 0 
+        widget_list = []
+        for y in range(cols): 
+            body = []
+            for x in range(rows):
+                body.append(urwid.SelectableIcon(f"{count:.2f}"))
+                count +=1
+                
+            widget_list.append(urwid.Columns(body))
+
+        super().__init__(urwid.Pile(widget_list))
+    
+widgets = [
+    urwid.Text("Title", align="center"),
+    urwid.Divider(),
+    urwid.Columns([
+        ('weight', 2, urwid.Divider()), 
+        ('weight', 10, Table(10, 10))
+    ]),
+    urwid.Divider(),
 ]
+main_view = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
 
-def exit_on_q(key):
-    if key in ('q', "Q"):
-        raise urwid.ExitMainLoop() 
-    
-class ConversationText(urwid.Pile):
-    def __init__(self):
-        widget_list = [urwid.Edit("What is your name? "), urwid.Text("")]
-        super().__init__(widget_list, focus_item=None)
-        logging.critical(self.contents)
-    
-    def update_text(self, text):
-        self.contents[1][0].set_text(text)
-
-    
-    def get_user_response(self):
-        return self.contents[0][0].edit_text
-        
-    
-
-
-class ConversationTable(urwid.ListBox):
-    def __init__(self):
-        body = urwid.SimpleListWalker([ConversationText()])
-        super().__init__(body)
-    
-    def keypress(self, size, key):
-        key = super().keypress(size, key)
-        if key == "q":
-            raise urwid.ExitMainLoop()
-        
-        if key != 'enter':
-            return key 
-        
-        text = self.focus.get_user_response()
-        text = f"Hello {text}!"
-        self.focus.update_text(text)
-        
-        # at the end of the list
-        if self.focus_position + 1 >= len(self.body): 
-            self.body.append(ConversationText())
-            self.focus_position += 1
-        
-        return key
-
-
-table = ConversationTable() 
-loop = urwid.MainLoop(table, palette, unhandled_input=exit_on_q)
-loop.run()
+urwid.MainLoop(main_view).run()
